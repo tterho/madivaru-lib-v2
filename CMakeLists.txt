@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(madivaru-lib-v2 C CXX)
 include(GoogleTest)
-add_subdirectory(googletest)
+add_subdirectory(test/googletest)
 link_directories(${googletest_BINARY_DIR})
 enable_testing()
 
