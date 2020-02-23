@@ -72,7 +72,7 @@ typedef struct _mdv_digital_output_t {
          mdv_result_t (*set)(uint32_t const output);
 } const mdv_digital_output_t;
 
-/** @} */
+/** @} mdv-digital-output */
 
 #endif // ifndef MDV_DIGITAL_OUTPUT_H
 
