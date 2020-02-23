@@ -170,7 +170,7 @@ uint32_t mdv_sw_timer_base_get_timer_mask(
 }
 #endif // ifdef __cplusplus
 
-/** \} mdv-sw-timer-base */
+/** @} mdv-sw-timer-base */
 
 #endif // ifndef MDV_SW_TIMER_BASE_H
 
