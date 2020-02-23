@@ -68,7 +68,7 @@ typedef struct _mdv_digital_input_t {
          uint32_t (*get)(void);
 } const mdv_digital_input_t;
 
-/** @} */
+/** @} mdv-digital-input */
 
 #endif // ifndef MDV_DIGITAL_INPUT_H
 

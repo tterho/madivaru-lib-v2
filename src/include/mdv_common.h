@@ -72,7 +72,7 @@ typedef int32_t mdv_result_t;
 /// A generic successful result
 #define MDV_RESULT_OK 0
 
-/** @} */
+/** @} mdv-common */
 
 #endif // ifndef MDV_COMMON_H
 
