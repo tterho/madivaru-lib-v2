@@ -45,22 +45,6 @@
  */
 
 /**
- * \brief Timer results and error codes
- */
-typedef enum _mdv_sw_timer_result_t{
-        /// Result ok
-        MDV_SW_TIMER_OK = 0,
-        /// Invalid pointer parameter
-        MDV_SW_TIMER_ERROR_INVALID_POINTER = -1,
-        /// Invalid parameter value
-        MDV_SW_TIMER_ERROR_INVALID_PARAMETER = -2,
-#ifndef MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
-        /// Timer is not running (starvation avereness)
-        MDV_SW_TIMER_ERROR_TIMER_NOT_RUNNING = -3
-#endif // MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
-} mdv_sw_timer_result_t;
-
-/**
  * \brief Order of magnitude of time
  */
 typedef enum _mdv_sw_timer_order_of_magnitude_t{
@@ -117,11 +101,9 @@ extern "C"{
  * \param[in] timer Timer to initialize
  * \param[in] sw_timer_base Timer base which this timer will use
  *
- * \retval TIMER_OK Successful
- * \retval TIMER_ERROR_INVALID_POINTER Either the timer or sw_timer_base
- *      parameter points to null
+ * \return No return value
  */
-mdv_sw_timer_result_t mdv_sw_timer_init(mdv_sw_timer_t *const sw_timer,
+void mdv_sw_timer_init(mdv_sw_timer_t *const sw_timer,
         mdv_sw_timer_base_t *const sw_timer_base);
 
 #ifndef MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
@@ -131,8 +113,10 @@ mdv_sw_timer_result_t mdv_sw_timer_init(mdv_sw_timer_t *const sw_timer,
  * \param[in] timer Timer to configure
  * \param[in] invocation_limit Invocation limit (set to 0 to disable the
  *      starvation check)
+ *
+ * \return No return value
  */
-mdv_sw_timer_result_t mdv_sw_timer_set_invocation_limit(
+void mdv_sw_timer_set_invocation_limit(
         mdv_sw_timer_t *const sw_timer, uint32_t const invocation_limit);
 #endif // MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
 
@@ -141,27 +125,27 @@ mdv_sw_timer_result_t mdv_sw_timer_set_invocation_limit(
  *
  * \param[in] timer Timer to start
  *
- * \retval TIMER_OK Successful
- * \retval TIMER_ERROR_INVALID POINTER The timer parameter points to null
+ * \return No return value
  */
-mdv_sw_timer_result_t mdv_sw_timer_start(mdv_sw_timer_t *const sw_timer);
+void mdv_sw_timer_start(mdv_sw_timer_t *const sw_timer);
 
 /**
  * \brief Get the time elapsed from the timer start
  *
  * \param[in] timer Timer in use
  * \param[in] order_of_magnitude The order of magnitude of time to use
- * \param[out] time Time elapsed from the timer start
+ * \param[out] is_timer_starving Timer starvation status (requires the
+ *      starvation avereness feature being enabled)
  *
- * \retval TIMER_OK Successful
- * \retval TIMER_ERROR_INVALID_POINTER The timer or time parameter points to
- *      null
- * \retval TIMER_ERROR_NOT_RUNNING The timer base is not running (requires
- *      timer starvation avereness feature)
+ * \return Elapsed time in the given order of magnitude
  */
-mdv_sw_timer_result_t mdv_sw_timer_get_time(mdv_sw_timer_t *const sw_timer,
-        mdv_sw_timer_order_of_magnitude_t order_of_magnitude,
-        uint32_t *const time);
+uint32_t mdv_sw_timer_get_time(
+        mdv_sw_timer_t *const sw_timer,
+        mdv_sw_timer_order_of_magnitude_t order_of_magnitude
+#ifndef MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
+        , bool *const is_timer_starving
+#endif // MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
+        );
 
 #ifdef __cplusplus
 }
