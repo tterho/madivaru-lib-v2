@@ -96,21 +96,17 @@ void mdv_sw_timer_base_uninit(mdv_sw_timer_base_t *const sw_timer_base)
 void mdv_sw_timer_base_tick(mdv_sw_timer_base_t *const sw_timer_base,
                             uint32_t const tick_count)
 {
-/*
-        if (!sw_timer_base) {
-                return MDV_SW_TIMER_BASE_ERROR_INVALID_POINTER;
-        }
+        assert(sw_timer_base);
+        assert(tick_count);
 
         // Advance the tick counter
         sw_timer_base->tick_counter += tick_count;
         // Emulate the width of the timer by limiting the tick counter by the
         // timer mask
         sw_timer_base->tick_counter &= sw_timer_base->timer_mask;
-        return MDV_SW_TIMER_BASE_OK;
-*/
 }
 
-uint32_t sw_timer_base_get_tick_count(mdv_sw_timer_base_t *sw_timer_base)
+uint32_t mdv_sw_timer_base_get_tick_count(mdv_sw_timer_base_t *sw_timer_base)
 {
         assert(sw_timer_base);
 
