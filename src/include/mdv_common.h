@@ -67,7 +67,7 @@ typedef int32_t mdv_result_t;
  * \retval true Result is successful
  * \retval false Result is an error code
  */
-#define MDV_SUCCESSFUL(RESULT) ((RESULT)>=0)
+#define MDV_SUCCESSFUL(RESULT) (((int32_t)RESULT)>=0)
 
 /// A generic successful result
 #define MDV_RESULT_OK 0
