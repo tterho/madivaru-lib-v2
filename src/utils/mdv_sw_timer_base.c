@@ -32,7 +32,7 @@
  */
 
 #include "mdv_sw_timer_base.h"
-#include "assert.h"
+#include <assert.h>
 
 /**
  * \defgroup mdv-sw-timer-base-internals Internals
@@ -101,6 +101,7 @@ void mdv_sw_timer_base_tick(mdv_sw_timer_base_t *const sw_timer_base,
 
         // Advance the tick counter
         sw_timer_base->tick_counter += tick_count;
+
         // Emulate the width of the timer by limiting the tick counter by the
         // timer mask
         sw_timer_base->tick_counter &= sw_timer_base->timer_mask;
