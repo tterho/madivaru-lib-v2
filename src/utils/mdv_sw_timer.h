@@ -41,6 +41,17 @@
  * \defgroup   mdv-sw-timer Software timer
  * \ingroup    madivaru-lib-v2
  * \copyright  Copyright &copy; 2020, Tuomas Terho. All rights reserved.
+ *
+ * This timer is equipped with a starvation avereness functionality. That
+ * feature is used to detect situations where the underlying hardware or
+ * software timer stops running, but the software is still waiting the timer.
+ * The starvation detection recognizes the situation and raises an error.
+ *
+ * If the starvation avareness is not needed, the functionality can be disabled
+ * by adding the define MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS to the project
+ * options. Disabling the feature saves some memory for each timer instance, and
+ * has a small impact to the overall timer perfomance.
+ *
  * @{
  */
 
