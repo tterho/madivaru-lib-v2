@@ -59,13 +59,13 @@
  * \brief Order of magnitude of time
  */
 typedef enum _mdv_sw_timer_order_of_magnitude_t{
-        // The order of magnitude equals to timer ticks
+        /// The order of magnitude equals to timer ticks
         MDV_SW_TIMER_TIMERTICK = 0,
-        // The order of magnitude is microseconds
+        /// The order of magnitude is microseconds
         MDV_SW_TIMER_US,
-        // The order of magnitude is milliseconds
+        /// The order of magnitude is milliseconds
         MDV_SW_TIMER_MS,
-        // The order of magnitude is seconds
+        /// The order of magnitude is seconds
         MDV_SW_TIMER_S
 } mdv_sw_timer_order_of_magnitude_t;
 
@@ -82,7 +82,7 @@ typedef struct _mdv_sw_timer_starvation_avereness_t{
         /// Last tick count value for detecting starvation
         uint32_t last_tick_count;
 } mdv_sw_timer_starvation_avereness_t;
-#endif // MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
+#endif // ifndef MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
 
 /**
  * \brief Timer data
@@ -99,7 +99,7 @@ typedef struct _mdv_sw_timer_t{
 #ifndef MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
         /// Timer starvation avereness support
         mdv_sw_timer_starvation_avereness_t starvation_avereness;
-#endif // MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
+#endif // ifndef MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
 } mdv_sw_timer_t;
 
 #ifdef __cplusplus
@@ -129,7 +129,7 @@ void mdv_sw_timer_init(mdv_sw_timer_t *const sw_timer,
  */
 void mdv_sw_timer_set_invocation_limit(
         mdv_sw_timer_t *const sw_timer, uint32_t const invocation_limit);
-#endif // MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
+#endif // ifndef MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
 
 /**
  * \brief Start a timer
@@ -145,18 +145,12 @@ void mdv_sw_timer_start(mdv_sw_timer_t *const sw_timer);
  *
  * \param[in] timer Timer in use
  * \param[in] order_of_magnitude The order of magnitude of time to use
- * \param[out] is_timer_starving Timer starvation status (requires the
- *      starvation avereness feature being enabled)
- *
- * \return Elapsed time in the given order of magnitude
+ * \param[out] time Elapsed time in the given order of magnitude
  */
-uint32_t mdv_sw_timer_get_time(
+void mdv_sw_timer_get_time(
         mdv_sw_timer_t *const sw_timer,
-        mdv_sw_timer_order_of_magnitude_t order_of_magnitude
-#ifndef MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
-        , bool *const is_timer_starving
-#endif // MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
-        );
+        mdv_sw_timer_order_of_magnitude_t order_of_magnitude,
+        uint32_t *const time);
 
 #ifdef __cplusplus
 }

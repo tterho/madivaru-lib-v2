@@ -7,6 +7,7 @@ include(GoogleTest)
 
 add_subdirectory(test/googletest)
 add_subdirectory(test/unit/mdv_sw_timer_base)
+add_subdirectory(test/unit/mdv_sw_timer)
 
 link_directories(${googletest_BINARY_DIR})
 

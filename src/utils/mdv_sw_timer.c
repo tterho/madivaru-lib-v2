@@ -32,7 +32,7 @@
  */
 
 #include "mdv_sw_timer.h"
-#include "assert.h"
+#include <assert.h>
 #include <string.h>
 
 /**
@@ -40,6 +40,11 @@
  * \ingroup  mdv-sw-timer
  * @{
  */
+
+/// Microseconds in one millisecond
+#define US_IN_ONE_MS 1000u
+/// Microseconds in one second
+#define US_IN_ONE_SECOND 1000000u
 
  #ifndef MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
 
@@ -51,7 +56,7 @@
  *
  * \return No return value
  */
-static void _local_init_starvation_detection(
+static void init_starvation_detection(
         mdv_sw_timer_starvation_avereness_t *const starvation_avereness,
         uint32_t const initial_tick_count)
 {
@@ -66,7 +71,7 @@ static void _local_init_starvation_detection(
  * \retval true Starvation detection is enabled
  * \retval false Starvation detection is disabled
  */
-static bool _local_is_starvation_detection_enabled(
+static bool is_starvation_detection_enabled(
         mdv_sw_timer_starvation_avereness_t *const starvation_avereness)
 {
         // Starvation detection is enabled, if the invocation limit has been set
@@ -82,7 +87,7 @@ static bool _local_is_starvation_detection_enabled(
  *
  * \return No return value
  */
-static void _local_manage_invocation_count(
+static void manage_invocation_count(
         mdv_sw_timer_starvation_avereness_t *const starvation_avereness,
         uint32_t const tick_count)
 {
@@ -91,7 +96,10 @@ static void _local_manage_invocation_count(
         // starvation avereness system counts the time how long the timer base
         // is not responding.
         if ((starvation_avereness->last_tick_count == tick_count)) {
-                ++starvation_avereness->invocation_count;
+                // Stop invocation counter to the maximum value
+                if (starvation_avereness->invocation_count < UINT32_MAX) {
+                        ++starvation_avereness->invocation_count;
+                }
         }else{
                 starvation_avereness->invocation_count = 0;
         }
@@ -109,35 +117,35 @@ static void _local_manage_invocation_count(
  * \retval true Timer is starving
  * \retval false Timer is not starving
  */
-static bool _local_is_timer_starving(
+static bool is_timer_starving(
         mdv_sw_timer_starvation_avereness_t *const starvation_avereness,
         uint32_t const tick_count)
 {
         // If the starvation detection is disabled, the timer can't be starving.
-        if (!_local_is_starvation_detection_enabled(starvation_avereness)) {
+        if (!is_starvation_detection_enabled(starvation_avereness)) {
                 return false;
         }
 
-        _local_manage_invocation_count(starvation_avereness, tick_count);
+        manage_invocation_count(starvation_avereness, tick_count);
 
-        // Check if the invocation count exceeds the invocation limit, and
-        // return the result as a boolean value
-        return (starvation_avereness->invocation_count >
+        // Check if the invocation count exceeds or equals to the invocation
+        // limit, and return the result as a boolean value
+        return (starvation_avereness->invocation_count >=
                 starvation_avereness->invocation_limit);
 }
 
 #endif // MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
 
 /**
- * \brief Manage and get tick count in count wrap-around situations
+ * \brief Get time in ticks and manage timer wrap-around situations
  *
  * \param[in] timer_mask Timer mask for the timer width
  * \param[in] tick_count_startup_sample Tick count startup value
  * \param[in] tick_count Current tick count
  *
- * \return Managed tick count
+ * \return Time in ticks
  */
-static uint32_t _local_get_managed_tick_count(uint32_t const timer_mask,
+static uint32_t get_time_in_ticks(uint32_t const timer_mask,
         uint32_t const tick_count_startup_sample, uint32_t const tick_count)
 {
         return (tick_count_startup_sample <= tick_count) ?
@@ -154,31 +162,39 @@ static uint32_t _local_get_managed_tick_count(uint32_t const timer_mask,
  *
  * \return Time in the given order of magnitude
  */
-static uint32_t _local_get_time_for_tick_count(uint32_t const tick_duration_us,
+static uint32_t get_time_for_tick_count(uint32_t const tick_duration_us,
         uint32_t const tick_count,
         mdv_sw_timer_order_of_magnitude_t const order_of_magnitude)
 {
+        uint32_t time;
+
         // Calculate the time lapse based on the time base and the requested
         // order of magnitude.
         switch (order_of_magnitude) {
         case MDV_SW_TIMER_US:
                 // Calculate time in microseconds
-                return (tick_count * tick_duration_us);
+                time = (tick_count * tick_duration_us);
+                break;
 
         case MDV_SW_TIMER_MS:
                 // Calculate time in milliseconds
-                return (tick_count * tick_duration_us) / 1000;
+                time = (tick_count * tick_duration_us) / US_IN_ONE_MS;
+                break;
 
         case MDV_SW_TIMER_S:
                 // Calculate time in seconds
-                return (tick_count * tick_duration_us) / 1000000;
+                time = (tick_count * tick_duration_us) / US_IN_ONE_SECOND;
+                break;
 
         case MDV_SW_TIMER_TIMERTICK:
         default:
                 // The time value is in correct order of magnitude, or the order
                 // of magnitude is unknown
-                return tick_count;
+                time = tick_count;
+                break;
         }
+
+        return time;
 }
 
 /** @} mdv-sw-timer-internals */
@@ -220,42 +236,34 @@ void mdv_sw_timer_start(mdv_sw_timer_t *const sw_timer)
                 mdv_sw_timer_base_get_tick_count(sw_timer->sw_timer_base);
 
 #ifndef MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
-        init_starvation_detector(&(sw_timer->starvation_avereness),
+        init_starvation_detection(&(sw_timer->starvation_avereness),
                 sw_timer->tick_count_startup_sample);
 #endif // MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
 }
 
-uint32_t mdv_sw_timer_get_time(
+void mdv_sw_timer_get_time(
         mdv_sw_timer_t *const sw_timer,
-        mdv_sw_timer_order_of_magnitude_t order_of_magnitude
-#ifndef MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
-        , bool *const is_timer_starving
-#endif // MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
-        )
+        mdv_sw_timer_order_of_magnitude_t order_of_magnitude,
+        uint32_t *const time)
 {
         assert(sw_timer);
-        assert(is_timer_starving);
+        assert(time);
 
         uint32_t tick_count;
 
         // Get the current tick count
         tick_count = mdv_sw_timer_base_get_tick_count(sw_timer->sw_timer_base);
 
-        // Manage tick count wrap-around situation
-        tick_count = _local_get_managed_tick_count(sw_timer->timer_mask,
+        tick_count = get_time_in_ticks(sw_timer->timer_mask,
                 sw_timer->tick_count_startup_sample, tick_count);
 
 #ifndef MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
-        *is_timer_starving =
-                _local_is_timer_starving(&(sw_timer->starvation_avereness),
-                                         tick_count);
-        if (*is_timer_starving) {
-                return 0;
-        }
+        assert(!is_timer_starving(&(sw_timer->starvation_avereness),
+                                  tick_count));
 #endif // MDV_DISABLE_SW_TIMER_STARVATION_AVERENESS
 
-        return _local_get_time_for_tick_count(sw_timer->tick_duration_us,
-                                              tick_count, order_of_magnitude);
+        *time = get_time_for_tick_count(sw_timer->tick_duration_us,
+                                        tick_count, order_of_magnitude);
 }
 
 /* EOF */
