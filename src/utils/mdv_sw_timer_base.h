@@ -61,18 +61,6 @@
  */
 
 /**
- * \brief Software timer base results and error codes
- */
-typedef enum _mdv_sw_timer_base_result_t{
-        /// Result ok
-        MDV_SW_TIMER_BASE_OK = 0,
-        /// Invalid pointer parameter
-        MDV_SW_TIMER_BASE_ERROR_INVALID_POINTER = -1,
-        /// Invalid parameter value
-        MDV_SW_TIMER_BASE_ERROR_INVALID_PARAMETER = -2
-} mdv_sw_timer_base_result_t;
-
-/**
  * \brief Software timer base instance data
  */
 typedef struct _mdv_sw_timer_base_t{
@@ -100,28 +88,21 @@ extern "C"{
  * \param[in] timer_driver A pointer to a hardware timer driver (optional, used
  *      for polling)
  *
- * \retval MDV_SW_TIMER_BASE_OK Initialization successful
- * \retval MDV_SW_TIMER_BASE_ERROR_INVALID_POINTER The sw_timer_base pointer
- *      points to null
- * \retval MVD_SW_TIMER_BASE_ERROR_INVALID_PARAMETER The tick_duration_us and
- *      the timer_width_bits parameters can't be null
+ * \return No return value
 */
-mdv_sw_timer_base_result_t mdv_sw_timer_base_init(
-        mdv_sw_timer_base_t *const sw_timer_base,
-        uint32_t const tick_duration_us, uint8_t const timer_width_bits,
-        mdv_timer_driver_t *const timer_driver);
+void mdv_sw_timer_base_init(mdv_sw_timer_base_t *const sw_timer_base,
+                            uint32_t const tick_duration_us,
+                            uint8_t const timer_width_bits,
+                            mdv_timer_driver_t *const timer_driver);
 
 /**
  * \brief Uninitialize the software timer base
  *
  * \param[in] sw_timer_base Software timer base to be uninitialized
  *
- * \retval MDV_SW_TIMER_BASE_OK Initialization successful
- * \retval MDV_SW_TIMER_BASE_ERROR_INVALID_POINTER The sw_timer_base pointer
- *      points to null
+ * \return No return value
 */
-mdv_sw_timer_base_result_t mdv_sw_timer_base_uninit(
-        mdv_sw_timer_base_t *const sw_timer_base);
+void mdv_sw_timer_base_uninit(mdv_sw_timer_base_t *const sw_timer_base);
 
 /**
  * \brief Advance the timer system by the given timer tick count
@@ -129,12 +110,10 @@ mdv_sw_timer_base_result_t mdv_sw_timer_base_uninit(
  * \param[in] sw_timer_base Timer system in use
  * \param[in] tick_count Count to advance the timer by
  *
- * \retval MDV_SW_TIMER_BASE_OK Initialization successful
- * \retval MDV_SW_TIMER_BASE_ERROR_INVALID_POINTER The sw_timer_base pointer
- *      points to null
+ * \return No return value
  */
-mdv_sw_timer_base_result_t mdv_sw_timer_base_tick(
-        mdv_sw_timer_base_t *const sw_timer_base, uint32_t tick_count);
+void mdv_sw_timer_base_tick(mdv_sw_timer_base_t *const sw_timer_base,
+                            uint32_t const tick_count);
 
 /**
  * \brief Get the current tick count

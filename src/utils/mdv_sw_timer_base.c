@@ -32,6 +32,7 @@
  */
 
 #include "mdv_sw_timer_base.h"
+#include <assert.h>
 
 /**
  * \defgroup mdv-sw-timer-base-internals Internals
@@ -60,18 +61,14 @@ uint32_t create_mask(uint8_t bits)
 
 /** @} mdv-sw-timer-base-internals */
 
-mdv_sw_timer_base_result_t mdv_sw_timer_base_init(
-        mdv_sw_timer_base_t *const sw_timer_base,
-        uint32_t const tick_duration_us, uint8_t const timer_width_bits,
-        mdv_timer_driver_t *const timer_driver)
+void mdv_sw_timer_base_init(mdv_sw_timer_base_t *const sw_timer_base,
+                            uint32_t const tick_duration_us,
+                            uint8_t const timer_width_bits,
+                            mdv_timer_driver_t *const timer_driver)
 {
-        if (!sw_timer_base) {
-                return MDV_SW_TIMER_BASE_ERROR_INVALID_POINTER;
-        }
-
-        if (!tick_duration_us || !timer_width_bits) {
-                return MDV_SW_TIMER_BASE_ERROR_INVALID_PARAMETER;
-        }
+        assert(sw_timer_base);
+        assert(tick_duration_us > 0);
+        assert((timer_width_bits > 0) && (timer_width_bits <= 32));
 
         sw_timer_base->timer_mask = create_mask(timer_width_bits);
         sw_timer_base->tick_counter = 0;
@@ -84,45 +81,35 @@ mdv_sw_timer_base_result_t mdv_sw_timer_base_init(
                 // needed by the polling mode
                 sw_timer_base->timer_driver->init(0, 0);
         }
-
-        return MDV_SW_TIMER_BASE_OK;
 }
 
-mdv_sw_timer_base_result_t mdv_sw_timer_base_uninit(
-        mdv_sw_timer_base_t *const sw_timer_base)
+void mdv_sw_timer_base_uninit(mdv_sw_timer_base_t *const sw_timer_base)
 {
-        if (!sw_timer_base) {
-                return MDV_SW_TIMER_BASE_ERROR_INVALID_POINTER;
-        }
+        assert(sw_timer_base);
 
         // Uninitialize the timer driver if needed
         if (sw_timer_base->timer_driver) {
                 sw_timer_base->timer_driver->uninit();
         }
-
-        return MDV_SW_TIMER_BASE_OK;
 }
 
-mdv_sw_timer_base_result_t mdv_sw_timer_base_tick(
-        mdv_sw_timer_base_t *const sw_timer_base, uint32_t tick_count)
+void mdv_sw_timer_base_tick(mdv_sw_timer_base_t *const sw_timer_base,
+                            uint32_t const tick_count)
 {
-        if (!sw_timer_base) {
-                return MDV_SW_TIMER_BASE_ERROR_INVALID_POINTER;
-        }
+        assert(sw_timer_base);
+        assert(tick_count);
 
         // Advance the tick counter
         sw_timer_base->tick_counter += tick_count;
+
         // Emulate the width of the timer by limiting the tick counter by the
         // timer mask
         sw_timer_base->tick_counter &= sw_timer_base->timer_mask;
-        return MDV_SW_TIMER_BASE_OK;
 }
 
-uint32_t sw_timer_base_get_tick_count(mdv_sw_timer_base_t *sw_timer_base)
+uint32_t mdv_sw_timer_base_get_tick_count(mdv_sw_timer_base_t *sw_timer_base)
 {
-        if (!sw_timer_base) {
-                return 0;
-        }
+        assert(sw_timer_base);
 
         // If the timer driver has been set, use the direct hardware polling
         // mode (return the hardware counter value). Otherwise, return the local
@@ -137,9 +124,7 @@ uint32_t sw_timer_base_get_tick_count(mdv_sw_timer_base_t *sw_timer_base)
 uint32_t mdv_sw_timer_base_get_tick_duration_us(
         mdv_sw_timer_base_t *const sw_timer_base)
 {
-        if (!sw_timer_base) {
-                return 0;
-        }
+        assert(sw_timer_base);
 
         return sw_timer_base->tick_duration_us;
 }
@@ -147,9 +132,7 @@ uint32_t mdv_sw_timer_base_get_tick_duration_us(
 uint32_t mdv_sw_timer_base_get_timer_mask(
         mdv_sw_timer_base_t *const sw_timer_base)
 {
-        if (!sw_timer_base) {
-                return 0;
-        }
+        assert(sw_timer_base);
 
         return sw_timer_base->timer_mask;
 }
